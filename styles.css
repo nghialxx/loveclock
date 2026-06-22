@@ -1,0 +1,216 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    overflow: hidden;
+    font-family: 'Georgia', serif;
+    background: white;
+}
+
+canvas {
+    display: block;
+}
+
+#clock {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: #E0779A;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+    pointer-events: all;
+    transition: transform 0.3s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#clock:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+}
+
+#clock-number {
+    font-size: clamp(48px, 10vw, 120px);
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(224, 119, 154, 0.3);
+    display: inline-block;
+    background: linear-gradient(90deg,
+        #E0779A 0%,
+        #f5b4cc 20%,
+        #ffe0ee 40%,
+        #f5b4cc 60%,
+        #c96090 80%,
+        #E0779A 100%
+    );
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: pinkShimmer 4s linear infinite;
+    padding-bottom: 0.12em;
+}
+
+@keyframes pinkShimmer {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+#clock-number.liquid {
+    animation: liquidMorph 0.75s ease-in-out,
+               pinkShimmer 4s linear infinite;
+}
+
+@keyframes liquidMorph {
+    0%   { transform: scale(1);                  filter: blur(0px); }
+    18%  { transform: scaleX(1.12) scaleY(0.82); filter: blur(1px); }
+    40%  { transform: scaleX(0.88) scaleY(0.58); filter: blur(8px); }
+    58%  { transform: scaleX(0.93) scaleY(1.22); filter: blur(2px); }
+    74%  { transform: scaleX(1.05) scaleY(0.95); filter: blur(0px); }
+    88%  { transform: scaleX(0.99) scaleY(1.02); filter: blur(0px); }
+    100% { transform: scale(1);                  filter: blur(0px); }
+}
+
+#clock-label {
+    font-size: clamp(16px, 3vw, 24px);
+    margin-top: 10px;
+    opacity: 0.7;
+    letter-spacing: 2px;
+}
+
+/* Milestone button */
+#milestone-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #E0779A;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(224, 119, 154, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+#milestone-btn:hover {
+    transform: scale(1.1) rotate(12deg);
+    box-shadow: 0 6px 16px rgba(224, 119, 154, 0.5);
+}
+
+#milestone-btn:active {
+    transform: scale(0.95);
+}
+
+/* Milestone popup */
+#milestone-popup {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    border: 2px solid #E0779A;
+    border-radius: 12px;
+    padding: 20px;
+    max-width: 300px;
+    width: 90vw;
+    box-shadow: 0 8px 24px rgba(224, 119, 154, 0.2);
+    z-index: 99;
+    display: none;
+    max-height: calc(100vh - 120px);
+    overflow-y: scroll;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+#milestone-list {
+    min-height: 50px;
+}
+
+#milestone-popup.show {
+    display: block;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+#milestone-popup h3 {
+    color: #E0779A;
+    margin-bottom: 15px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.milestone-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    background: #fff5f8;
+    border-left: 4px solid #E0779A;
+}
+
+.milestone-item.reached {
+    background: #E0779A;
+    color: white;
+}
+
+.milestone-name {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.milestone-date {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.milestone-countdown {
+    font-size: 12px;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* Hint */
+#hint {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #E0779A;
+    font-size: 14px;
+    letter-spacing: 1px;
+    opacity: 0;
+    pointer-events: none;
+    animation: fadeHint 7s ease 0.8s forwards;
+    white-space: nowrap;
+}
+
+@keyframes fadeHint {
+    0%   { opacity: 0; }
+    15%  { opacity: 0.65; }
+    70%  { opacity: 0.65; }
+    100% { opacity: 0; }
+}
+
+/* Scrollbar */
+#milestone-popup::-webkit-scrollbar { width: 8px; }
+#milestone-popup::-webkit-scrollbar-track { background: #fff5f8; border-radius: 4px; }
+#milestone-popup::-webkit-scrollbar-thumb { background: #E0779A; border-radius: 4px; }
+#milestone-popup::-webkit-scrollbar-thumb:hover { background: #d06a8a; }
