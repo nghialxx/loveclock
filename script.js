@@ -22,6 +22,11 @@ let wasDragged = false;
 let lastTapTime = 0;
 let lastTapX = 0;
 let lastTapY = 0;
+let isTouchDown = false;
+let touchStartX = 0;
+let touchStartY = 0;
+let touchHasMoved = false;
+let doubleTapFired = false;
 
 // ==================== MILESTONES ====================
 const MILESTONES = [
@@ -467,7 +472,9 @@ function draw() {
         lastSpawnTime = millis();
     }
 
-    if (millis() - lastMouseMove > 100) isMouseActive = false;
+    // Keep active while finger is on screen so collection works while holding still
+    if (isTouchDown) { isMouseActive = true; lastMouseMove = millis(); }
+    else if (millis() - lastMouseMove > 100) isMouseActive = false;
 
     for (const p of particles)          p.update();
     for (const p of collectedParticles) p.update();
@@ -608,6 +615,10 @@ function touchMoved() {
         const t = touches[0];
         const rect = document.getElementById('clock').getBoundingClientRect();
         if (t.x >= rect.left && t.x <= rect.right && t.y >= rect.top && t.y <= rect.bottom) return false;
+        // Mark as moved so touchEnded knows it wasn't a tap
+        const dx = t.x - touchStartX;
+        const dy = t.y - touchStartY;
+        if (Math.sqrt(dx*dx + dy*dy) > 10) touchHasMoved = true;
         isMouseActive = true; lastMouseMove = millis();
         cursorX = t.x; cursorY = t.y;
     }
@@ -619,6 +630,10 @@ function touchStarted() {
         const t = touches[0];
         const rect = document.getElementById('clock').getBoundingClientRect();
         if (t.x >= rect.left && t.x <= rect.right && t.y >= rect.top && t.y <= rect.bottom) return false;
+        isTouchDown = true;
+        touchHasMoved = false;
+        touchStartX = t.x;
+        touchStartY = t.y;
         isMouseActive = true; lastMouseMove = millis();
         cursorX = t.x; cursorY = t.y;
 
@@ -626,14 +641,27 @@ function touchStarted() {
         const now = Date.now();
         const dx = t.x - lastTapX;
         const dy = t.y - lastTapY;
-        const dist = Math.sqrt(dx*dx + dy*dy);
-        if (now - lastTapTime < 300 && dist < 40) {
+        if (now - lastTapTime < 300 && Math.sqrt(dx*dx + dy*dy) < 40) {
             bursts.push(new DoubleClickBurst(t.x, t.y));
-            lastTapTime = 0; // reset so triple-tap doesn't re-trigger
+            doubleTapFired = true;
+            lastTapTime = 0;
         } else {
+            doubleTapFired = false;
             lastTapTime = now;
             lastTapX = t.x;
             lastTapY = t.y;
+        }
+    }
+    return false;
+}
+
+function touchEnded() {
+    isTouchDown = false;
+    // Single tap: finger barely moved and no double-tap fired
+    if (!touchHasMoved && !doubleTapFired) {
+        const el = document.elementFromPoint(touchStartX, touchStartY);
+        if (!el?.closest('#clock, #milestone-btn, #milestone-popup')) {
+            bursts.push(new ClickBurst(touchStartX, touchStartY));
         }
     }
     return false;
