@@ -130,12 +130,12 @@ class Particle {
             const cd = Math.sqrt(cdx*cdx + cdy*cdy);
 
             if (cd > 1) {
-                if (mouseIsPressed && cd < 280) {
-                    // Vortex: clockwise orbit + slight inward pull
+                if (mouseIsPressed && !isTouchDown && cd < 280) {
+                    // Vortex: clockwise orbit + slight inward pull (desktop only)
                     const f = map(cd, 0, 280, 5, 0.4);
                     tx += (-cdy/cd * 3.0 + cdx/cd * 0.4) * f;
                     ty += ( cdx/cd * 3.0 + cdy/cd * 0.4) * f;
-                } else if (!mouseIsPressed && cd < COLLECTION_RADIUS) {
+                } else if (!(mouseIsPressed && !isTouchDown) && cd < COLLECTION_RADIUS) {
                     // Gentle attraction for collection
                     const pull = map(cd, 0, COLLECTION_RADIUS, 7, 1);
                     tx += cdx/cd * pull;
@@ -158,7 +158,7 @@ class Particle {
     }
 
     display() {
-        const nearMouse = isMouseActive && !mouseIsPressed && dist(this.x, this.y, cursorX, cursorY) < COLLECTION_RADIUS;
+        const nearMouse = isMouseActive && !(mouseIsPressed && !isTouchDown) && dist(this.x, this.y, cursorX, cursorY) < COLLECTION_RADIUS;
         if (this.collected || nearMouse) {
             const glow = this.collected
                 ? this.glowSize
@@ -479,7 +479,7 @@ function draw() {
     for (const p of particles)          p.update();
     for (const p of collectedParticles) p.update();
 
-    if (isMouseActive && !mouseIsPressed && collectedParticles.length < PARTICLES_NEEDED) {
+    if (isMouseActive && !(mouseIsPressed && !isTouchDown) && collectedParticles.length < PARTICLES_NEEDED) {
         checkCollection();
     }
 
@@ -500,7 +500,7 @@ function draw() {
     for (const p of particles) p.display();
 
     // Collection UI
-    if (isMouseActive && !mouseIsPressed && collectedParticles.length < PARTICLES_NEEDED) {
+    if (isMouseActive && !(mouseIsPressed && !isTouchDown) && collectedParticles.length < PARTICLES_NEEDED) {
         // Outer ring
         noFill();
         stroke(LINE_COLOR + '55');
@@ -553,8 +553,8 @@ function draw() {
         if (bursts[i].done) bursts.splice(i, 1);
     }
 
-    // Vortex visual hint when holding mouse
-    if (mouseIsPressed && isMouseActive) {
+    // Vortex visual hint when holding mouse (desktop only)
+    if (mouseIsPressed && !isTouchDown && isMouseActive) {
         noFill();
         strokeWeight(1);
         const spin = millis() / 500;
