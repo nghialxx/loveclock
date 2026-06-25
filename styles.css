@@ -76,6 +76,16 @@ canvas {
     100% { transform: scale(1);                  filter: blur(0px); }
 }
 
+#clock-names {
+    font-family: "Playwrite HR", cursive;
+    font-weight: 300;
+    font-size: clamp(14px, 2.5vw, 28px);
+    color: #E0779A;
+    opacity: 0.7;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
 #clock-label {
     font-size: clamp(16px, 3vw, 24px);
     margin-top: 10px;
